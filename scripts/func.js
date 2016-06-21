@@ -5,14 +5,16 @@
 // License: 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-var config = require('./scripts/config.js');
+var config = require('../scripts/config.js');
 var Twitter = require('twitter');
 var mongoose = require('mongoose');
-var twitter_shares = require('./models/twitter_shares')
+var twitter_shares = require('../models/twitter_shares');
 var Twitter_share = mongoose.model('twitter_share', Twitter_share);
+var mongoose_twitter = mongoose.createConnection('mongodb://'+config.DB_HOST+'/'+config.DB_NAME);
+
 
 module.exports= {
-	"db":  mongoose.connect('mongodb://'+config.DB_HOST+'/'+config.DB_NAME'),
+
 	"client": new Twitter({
 		consumer_key: config.TWITTER_COMSUMER_KEY,
 		consumer_secret: config.TWITTER_CONSUMER_SECRET,
@@ -74,7 +76,7 @@ module.exports= {
 				 if (isNaN(final[y]) || final[y] == undefined || final[y] == null ){
 					 pass = false
 				}
-				if(y == (final.length-1) && pass = true){
+				if(y == (final.length-1) && pass == true){
 						 callback(final)
 					 }
 			}
