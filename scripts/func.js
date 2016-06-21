@@ -15,50 +15,9 @@ var mongoose_twitter = mongoose.createConnection('mongodb://'+config.DB_HOST+'/'
 
 module.exports= {
 
-	"client": new Twitter({
-		consumer_key: config.TWITTER_COMSUMER_KEY,
-		consumer_secret: config.TWITTER_CONSUMER_SECRET,
-		bearer_token: config.TWITTER_BEARER_TOKEN
-	}),
-	"get_tweets_from_keywords": function(keyword, twitter_share, pos, callback){
-		// fetch tweets containing the keyword
-		var params = {q: keyword};
-		this.client.get('search/tweets.json', params, function(error, tweets, response){
-			if (!error) {
-				console.log(tweets);
-			}
-			//for each, index the tweets data
-			var x=1
-			for (var status in tweets.statuses) {
-				var tweets_data = {
-					"url": '/'+ status.user.name+'/'+status.id,
-					"text": status.text,
-					"retweet" : status.retweet_count
-				}
-				// concatenate to main keyword twitter_share object
-				twitter_share.tweets.push(tweets_data)
-				// count up the total_share score
-				twitter_share.total_shares += tweets_data.retweet
-				// index in mongoDb and when finalized , send back the main twitter_share object na dposition for _finalize
-				this.index_tweets(twitter_share, function(){
-					x=x+1
-					if (x == tweets.statuses.length){
-						callback(twitter_share, pos)
-					}
-					})
-			}
-			
-		});
-		
-	},
-	"index_tweets": function(twitter_share, callback){
-		var instance = new Twitter_share();
-		instance = twitter_share;
-		instance.save(function (err) { 
-			callback()
-		});
-	},
 	"get_Twitter_social_shares": function(keywords, callback){
+		var self = this
+		keywords = JSON.parse(keywords)
 		// Taking a list of keywords and fetch tweet related to theses and then a count of retweet. 
 		// tweets related to keyword will be indexed in a mongoDb collections by date. 
 		// The nb of share will serves as history (fetching past data may be harder or limited)
@@ -91,7 +50,60 @@ module.exports= {
 				"total_shares": -1,
 				"tweets":[]
 			}
-			this.get_tweets_from_keywords(keywords[i], twitter_share, i, _finalize)
+			console.log("twitter share was asked for : "+ keywords[i])
+			console.log(typeof(keywords))
+			get_tweets_from_keywords(keywords[i], twitter_share, i, _finalize)
 		}
+		
+	function get_tweets_from_keywords(keyword, twitter_share, pos, callback){
+		// fetch tweets containing the keyword
+		var client =  new Twitter({
+			consumer_key: config.TWITTER_COMSUMER_KEY,
+			consumer_secret: config.TWITTER_CONSUMER_SECRET,
+			bearer_token: config.TWITTER_BEARER_TOKEN
+		})
+		console.log("twitter share was defined for : "+ JSON.stringify(client))
+		var params = {q: keyword};
+		client.get('search/tweets.json', params, function(error, tweets, response){
+			console.log("twitter share client was called for : "+ JSON.stringify(params))
+			if (!error) {
+				console.log("tweets: "+ tweets);
+			}else{
+				new Error("Error: "+ JSON.stringify(error))
+				console.log("Error: "+ JSON.stringify(error));
+			}
+		
+			//for each, index the tweets data
+			var x=1
+			for (var status in tweets.statuses) {
+				var tweets_data = {
+					"url": '/'+ status.user.name+'/'+status.id,
+					"text": status.text,
+					"retweet" : status.retweet_count
+				}
+				// concatenate to main keyword twitter_share object
+				twitter_share.tweets.push(tweets_data)
+				// count up the total_share score
+				twitter_share.total_shares += tweets_data.retweet
+				// index in mongoDb and when finalized , send back the main twitter_share object na dposition for _finalize
+				index_tweets(twitter_share, function(){
+					x=x+1
+					if (x == tweets.statuses.length){
+						callback(twitter_share, pos)
+					}
+				})
+		}
+	});
 	}
+	function index_tweets(twitter_share, callback){
+		var instance = new Twitter_share();
+		instance = twitter_share;
+		instance.save(function (err) { 
+			callback()
+		});
+	}
+	}
+
+
+
 };
