@@ -27,8 +27,7 @@ var server = rpc.Server.$create({
 });
  
 //expose func lib
-server.expose("get_social_shares", func.get_social_shares);
-server.expose("get_article_title_with_keywords", func.get_article_title_with_keywords);
+server.expose("get_Twitter_social_shares", func.get_Twitter_social_shares);
 // expects calls to be namespace.function1, namespace.function2 and namespace.function3 
  
 // listen creates an HTTP server on localhost only 

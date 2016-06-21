@@ -10,7 +10,9 @@ var Config = {
     NODE_PORT: 8092,
     TWITTER_COMSUMER_KEY:"im1o6JONQKzGaGiMuafsNl5VO",
     TWITTER_CONSUMER_SECRET:"OgmYZ5YbXt2SeGAdve2Qdu7ZlydjBS1G0rHc42HtzhXNzCoyEd",
-    TWITTER_BEARER_TOKEN:""
+    TWITTER_BEARER_TOKEN:"",
+    DB_NAME: "twitter_share",
+    DB_HOST: "localhost"
 };
 module.exports = Config;
 
