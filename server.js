@@ -32,3 +32,4 @@ server.expose("get_Twitter_social_shares", func.get_Twitter_social_shares);
  
 // listen creates an HTTP server on localhost only 
 server.listen(config.NODE_PORT, config.NODE_HOST);
+console.log("RPC2-Server is listening on : "+config.NODE_HOST+":"+config.NODE_PORT)
